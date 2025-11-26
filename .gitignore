@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+*.egg-info/
+dist/
+build/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+uploads/
+*.log
+.cache/
+chroma_db/
