@@ -36,6 +36,27 @@
 
         .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
 
+        .lang-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lang-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover { background: rgba(255,255,255,0.3); }
+        .lang-btn.active { background: white; color: var(--primary); }
+
         .github-link {
             display: inline-flex;
             align-items: center;
@@ -284,13 +305,18 @@
 </head>
 <body>
     <header class="header">
-        <h1>Smart Document Assistant</h1>
-        <p>LangChain-powered document analysis and Q&A</p>
+        <div class="lang-selector">
+            <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+            <button class="lang-btn" onclick="setLanguage('ko')">KO</button>
+            <button class="lang-btn" onclick="setLanguage('ja')">JA</button>
+        </div>
+        <h1 id="title">Smart Document Assistant</h1>
+        <p id="subtitle">LangChain-powered document analysis and Q&A</p>
         <a href="https://github.com/yoon-k/langchain-doc-assistant" class="github-link">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
             </svg>
-            View on GitHub
+            <span id="github-text">View on GitHub</span>
         </a>
     </header>
 
@@ -298,16 +324,16 @@
         <section class="demo-section">
             <aside class="sidebar">
                 <div class="panel">
-                    <h3>Upload Document</h3>
+                    <h3 id="upload-title">Upload Document</h3>
                     <div class="upload-area" onclick="simulateUpload()">
                         <div class="upload-icon">📄</div>
-                        <p>Drop files here or click</p>
+                        <p id="upload-text">Drop files here or click</p>
                         <small>PDF, DOCX, TXT, MD, CSV</small>
                     </div>
                 </div>
 
                 <div class="panel">
-                    <h3>Sample Documents</h3>
+                    <h3 id="sample-title">Sample Documents</h3>
                     <div class="sample-docs">
                         <div class="sample-doc" onclick="loadSample('tech_report')">Tech Report.pdf</div>
                         <div class="sample-doc" onclick="loadSample('contract')">Contract.docx</div>
@@ -316,61 +342,46 @@
                 </div>
 
                 <div class="panel">
-                    <h3>Your Documents</h3>
+                    <h3 id="docs-title">Your Documents</h3>
                     <div id="docs-list">
-                        <p style="color: var(--text-light); font-size: 0.85rem;">No documents yet</p>
+                        <p id="no-docs" style="color: var(--text-light); font-size: 0.85rem;">No documents yet</p>
                     </div>
                 </div>
 
                 <div class="panel">
-                    <h3>Quick Actions</h3>
-                    <button class="action-btn" onclick="quickMsg('Search for key findings')">Search Documents</button>
-                    <button class="action-btn" onclick="quickMsg('Summarize the document')">Summarize</button>
-                    <button class="action-btn" onclick="quickMsg('Extract all entities')">Extract Entities</button>
-                    <button class="action-btn" onclick="quickMsg('Compare the documents')">Compare Docs</button>
+                    <h3 id="actions-title">Quick Actions</h3>
+                    <button class="action-btn" id="action-search" onclick="quickAction('search')">Search Documents</button>
+                    <button class="action-btn" id="action-summarize" onclick="quickAction('summarize')">Summarize</button>
+                    <button class="action-btn" id="action-extract" onclick="quickAction('extract')">Extract Entities</button>
+                    <button class="action-btn" id="action-compare" onclick="quickAction('compare')">Compare Docs</button>
                 </div>
             </aside>
 
             <div class="chat-area">
-                <div class="chat-messages" id="chat-messages">
-                    <div class="message assistant">
-                        <div class="message-content">
-                            <p>Welcome! I'm your Document Assistant. I can help you:</p>
-                            <ul>
-                                <li><strong>Upload</strong> documents (PDF, Word, Text, Markdown)</li>
-                                <li><strong>Search</strong> through document content</li>
-                                <li><strong>Answer questions</strong> based on your documents</li>
-                                <li><strong>Summarize</strong> document content</li>
-                                <li><strong>Extract</strong> entities (people, dates, organizations)</li>
-                                <li><strong>Compare</strong> multiple documents</li>
-                            </ul>
-                            <p>Try loading a sample document or upload your own to get started!</p>
-                        </div>
-                    </div>
-                </div>
+                <div class="chat-messages" id="chat-messages"></div>
                 <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Ask about your documents..." onkeypress="if(event.key==='Enter')sendMsg()">
-                    <button class="send-btn" onclick="sendMsg()">Send</button>
+                    <input type="text" id="chat-input" onkeypress="if(event.key==='Enter')sendMsg()">
+                    <button class="send-btn" onclick="sendMsg()" id="send-btn">Send</button>
                 </div>
             </div>
         </section>
 
         <section class="features">
             <div class="feature-card">
-                <h3>Multi-Format Support</h3>
-                <p>Process PDF, DOCX, TXT, Markdown, CSV, and more with intelligent parsing and chunking.</p>
+                <h3 id="feature1-title">Multi-Format Support</h3>
+                <p id="feature1-desc">Process PDF, DOCX, TXT, Markdown, CSV, and more with intelligent parsing and chunking.</p>
             </div>
             <div class="feature-card">
-                <h3>Intelligent Search</h3>
-                <p>Find relevant content across all documents using semantic search and keyword matching.</p>
+                <h3 id="feature2-title">Intelligent Search</h3>
+                <p id="feature2-desc">Find relevant content across all documents using semantic search and keyword matching.</p>
             </div>
             <div class="feature-card">
-                <h3>Question Answering</h3>
-                <p>Get accurate answers with source citations using RAG (Retrieval Augmented Generation).</p>
+                <h3 id="feature3-title">Question Answering</h3>
+                <p id="feature3-desc">Get accurate answers with source citations using RAG (Retrieval Augmented Generation).</p>
             </div>
             <div class="feature-card">
-                <h3>Entity Extraction</h3>
-                <p>Automatically extract people, organizations, dates, emails, and other entities.</p>
+                <h3 id="feature4-title">Entity Extraction</h3>
+                <p id="feature4-desc">Automatically extract people, organizations, dates, emails, and other entities.</p>
             </div>
         </section>
 
@@ -385,64 +396,321 @@
     </div>
 
     <footer class="footer">
-        <p>Demo showcasing LangChain capabilities for document processing</p>
+        <p id="footer-text">Demo showcasing LangChain capabilities for document processing</p>
     </footer>
 
     <script>
+        let currentLang = 'en';
         let documents = [];
 
-        const responses = {
-            search: `**Search Results:**<br><br>
-<strong>From 'Tech Report.pdf' (Page 3):</strong><br>
-"The key findings indicate a 35% improvement in processing efficiency when using the new algorithm. Implementation across three test environments showed consistent results."<br><br>
-<strong>From 'Research Notes.md' (Section 2):</strong><br>
-"Primary findings support the hypothesis that automated document processing reduces manual review time by up to 60%."<br><br>
-<em>Found 2 relevant sections.</em>`,
-
-            summarize: `**Summary of 'Tech Report.pdf':**<br><br>
-This technical report presents findings from a comprehensive study on document processing optimization. The research team evaluated multiple approaches to automated text extraction and analysis, focusing on accuracy and performance metrics. Key conclusions include significant time savings through automation and improved consistency in entity extraction.<br><br>
-<em>Original: 15,420 characters | Summary: 312 characters</em>`,
-
-            extract: `**Entities Extracted:**<br><br>
-<strong>People:</strong> Dr. Sarah Chen, Michael Roberts, Jennifer Liu<br><br>
-<strong>Organizations:</strong> Tech Research Institute, Acme Corp, Data Analytics Inc<br><br>
-<strong>Dates:</strong> January 15, 2024, March 2024, Q2 2024<br><br>
-<strong>Emails:</strong> research@techlab.com, contact@acme.com<br><br>
-<strong>Locations:</strong> San Francisco, New York, Boston`,
-
-            compare: `**Document Comparison:**<br><br>
-<strong>Document 1:</strong> Tech Report.pdf (5,240 words)<br>
-<strong>Document 2:</strong> Research Notes.md (2,180 words)<br><br>
-<strong>Similarity Score:</strong> 68.5%<br><br>
-<strong>Common Terms:</strong> analysis, processing, document, extraction, algorithm, performance<br><br>
-<strong>Unique to Doc 1:</strong> benchmark, optimization, efficiency, deployment<br>
-<strong>Unique to Doc 2:</strong> hypothesis, methodology, preliminary`,
-
-            question: `**Answer:**<br>
-Based on the documents, the main recommendation is to implement the automated processing pipeline in phases, starting with high-volume document types. The research indicates this approach minimizes risk while maximizing early ROI.<br><br>
-<strong>Sources:</strong><br>
-- Tech Report.pdf (Page 8)<br>
-- Research Notes.md (Section 4)<br><br>
-<em>Confidence: 85%</em>`,
-
-            default: `I can help you analyze your documents. Try:<br><br>
-<ul>
-<li>"Search for [keyword]" - Find relevant content</li>
-<li>"Summarize the document" - Get a brief overview</li>
-<li>"Extract entities" - Find people, dates, organizations</li>
-<li>"What are the main conclusions?" - Ask questions</li>
-</ul>`
+        const i18n = {
+            en: {
+                title: "Smart Document Assistant",
+                subtitle: "LangChain-powered document analysis and Q&A",
+                github: "View on GitHub",
+                uploadTitle: "Upload Document",
+                uploadText: "Drop files here or click",
+                sampleTitle: "Sample Documents",
+                docsTitle: "Your Documents",
+                noDocs: "No documents yet",
+                actionsTitle: "Quick Actions",
+                actionSearch: "Search Documents",
+                actionSummarize: "Summarize",
+                actionExtract: "Extract Entities",
+                actionCompare: "Compare Docs",
+                placeholder: "Ask about your documents...",
+                send: "Send",
+                feature1Title: "Multi-Format Support",
+                feature1Desc: "Process PDF, DOCX, TXT, Markdown, CSV, and more with intelligent parsing and chunking.",
+                feature2Title: "Intelligent Search",
+                feature2Desc: "Find relevant content across all documents using semantic search and keyword matching.",
+                feature3Title: "Question Answering",
+                feature3Desc: "Get accurate answers with source citations using RAG (Retrieval Augmented Generation).",
+                feature4Title: "Entity Extraction",
+                feature4Desc: "Automatically extract people, organizations, dates, emails, and other entities.",
+                footer: "Demo showcasing LangChain capabilities for document processing",
+                words: "words",
+                loading: "Loading sample:",
+                uploaded: "I've uploaded a document",
+                uploadSuccess: "Successfully uploaded",
+                chunks: "chunks",
+                whatToKnow: "What would you like to know about it?",
+                loadFirst: "Please upload or load a sample document first, then I can help you analyze it."
+            },
+            ko: {
+                title: "스마트 문서 어시스턴트",
+                subtitle: "LangChain 기반 문서 분석 및 Q&A",
+                github: "GitHub에서 보기",
+                uploadTitle: "문서 업로드",
+                uploadText: "파일을 여기에 끌어다 놓거나 클릭",
+                sampleTitle: "샘플 문서",
+                docsTitle: "내 문서",
+                noDocs: "아직 문서가 없습니다",
+                actionsTitle: "빠른 작업",
+                actionSearch: "문서 검색",
+                actionSummarize: "요약하기",
+                actionExtract: "개체 추출",
+                actionCompare: "문서 비교",
+                placeholder: "문서에 대해 질문하세요...",
+                send: "전송",
+                feature1Title: "다양한 형식 지원",
+                feature1Desc: "PDF, DOCX, TXT, Markdown, CSV 등을 지능형 파싱 및 청킹으로 처리합니다.",
+                feature2Title: "지능형 검색",
+                feature2Desc: "의미론적 검색과 키워드 매칭을 통해 모든 문서에서 관련 콘텐츠를 찾습니다.",
+                feature3Title: "질문 응답",
+                feature3Desc: "RAG(검색 증강 생성)를 사용하여 출처 인용과 함께 정확한 답변을 제공합니다.",
+                feature4Title: "개체 추출",
+                feature4Desc: "사람, 조직, 날짜, 이메일 및 기타 개체를 자동으로 추출합니다.",
+                footer: "문서 처리를 위한 LangChain 기능 데모",
+                words: "단어",
+                loading: "샘플 로딩 중:",
+                uploaded: "문서를 업로드했습니다",
+                uploadSuccess: "성공적으로 업로드됨",
+                chunks: "청크",
+                whatToKnow: "무엇을 알고 싶으신가요?",
+                loadFirst: "먼저 샘플 문서를 업로드하거나 로드해 주세요. 그러면 분석을 도와드리겠습니다."
+            },
+            ja: {
+                title: "スマート文書アシスタント",
+                subtitle: "LangChain搭載の文書分析とQ&A",
+                github: "GitHubで見る",
+                uploadTitle: "文書をアップロード",
+                uploadText: "ファイルをここにドロップまたはクリック",
+                sampleTitle: "サンプル文書",
+                docsTitle: "あなたの文書",
+                noDocs: "まだ文書がありません",
+                actionsTitle: "クイックアクション",
+                actionSearch: "文書を検索",
+                actionSummarize: "要約する",
+                actionExtract: "エンティティ抽出",
+                actionCompare: "文書を比較",
+                placeholder: "文書について質問してください...",
+                send: "送信",
+                feature1Title: "マルチフォーマット対応",
+                feature1Desc: "PDF、DOCX、TXT、Markdown、CSVなどをインテリジェントな解析とチャンキングで処理します。",
+                feature2Title: "インテリジェント検索",
+                feature2Desc: "セマンティック検索とキーワードマッチングを使用して、すべての文書から関連コンテンツを検索します。",
+                feature3Title: "質問応答",
+                feature3Desc: "RAG（検索拡張生成）を使用して、出典を引用しながら正確な回答を提供します。",
+                feature4Title: "エンティティ抽出",
+                feature4Desc: "人物、組織、日付、メールアドレスなどのエンティティを自動的に抽出します。",
+                footer: "文書処理のためのLangChain機能デモ",
+                words: "語",
+                loading: "サンプルを読み込み中:",
+                uploaded: "文書をアップロードしました",
+                uploadSuccess: "正常にアップロードされました",
+                chunks: "チャンク",
+                whatToKnow: "何について知りたいですか？",
+                loadFirst: "まずサンプル文書をアップロードまたは読み込んでください。その後、分析をお手伝いします。"
+            }
         };
 
+        const responses = {
+            en: {
+                welcome: `<p>Welcome! I'm your Document Assistant. I can help you:</p>
+                    <ul>
+                        <li><strong>Upload</strong> documents (PDF, Word, Text, Markdown)</li>
+                        <li><strong>Search</strong> through document content</li>
+                        <li><strong>Answer questions</strong> based on your documents</li>
+                        <li><strong>Summarize</strong> document content</li>
+                        <li><strong>Extract</strong> entities (people, dates, organizations)</li>
+                        <li><strong>Compare</strong> multiple documents</li>
+                    </ul>
+                    <p>Try loading a sample document or upload your own to get started!</p>`,
+                search: `<strong>Search Results:</strong><br><br>
+                    <strong>From 'Tech Report.pdf' (Page 3):</strong><br>
+                    "The key findings indicate a 35% improvement in processing efficiency when using the new algorithm. Implementation across three test environments showed consistent results."<br><br>
+                    <strong>From 'Research Notes.md' (Section 2):</strong><br>
+                    "Primary findings support the hypothesis that automated document processing reduces manual review time by up to 60%."<br><br>
+                    <em>Found 2 relevant sections.</em>`,
+                summarize: `<strong>Summary of 'Tech Report.pdf':</strong><br><br>
+                    This technical report presents findings from a comprehensive study on document processing optimization. The research team evaluated multiple approaches to automated text extraction and analysis, focusing on accuracy and performance metrics. Key conclusions include significant time savings through automation and improved consistency in entity extraction.<br><br>
+                    <em>Original: 15,420 characters | Summary: 312 characters</em>`,
+                extract: `<strong>Entities Extracted:</strong><br><br>
+                    <strong>People:</strong> Dr. Sarah Chen, Michael Roberts, Jennifer Liu<br><br>
+                    <strong>Organizations:</strong> Tech Research Institute, Acme Corp, Data Analytics Inc<br><br>
+                    <strong>Dates:</strong> January 15, 2024, March 2024, Q2 2024<br><br>
+                    <strong>Emails:</strong> research@techlab.com, contact@acme.com<br><br>
+                    <strong>Locations:</strong> San Francisco, New York, Boston`,
+                compare: `<strong>Document Comparison:</strong><br><br>
+                    <strong>Document 1:</strong> Tech Report.pdf (5,240 words)<br>
+                    <strong>Document 2:</strong> Research Notes.md (2,180 words)<br><br>
+                    <strong>Similarity Score:</strong> 68.5%<br><br>
+                    <strong>Common Terms:</strong> analysis, processing, document, extraction, algorithm, performance<br><br>
+                    <strong>Unique to Doc 1:</strong> benchmark, optimization, efficiency, deployment<br>
+                    <strong>Unique to Doc 2:</strong> hypothesis, methodology, preliminary`,
+                question: `<strong>Answer:</strong><br>
+                    Based on the documents, the main recommendation is to implement the automated processing pipeline in phases, starting with high-volume document types. The research indicates this approach minimizes risk while maximizing early ROI.<br><br>
+                    <strong>Sources:</strong><br>
+                    - Tech Report.pdf (Page 8)<br>
+                    - Research Notes.md (Section 4)<br><br>
+                    <em>Confidence: 85%</em>`,
+                default: `I can help you analyze your documents. Try:<br><br>
+                    <ul>
+                    <li>"Search for [keyword]" - Find relevant content</li>
+                    <li>"Summarize the document" - Get a brief overview</li>
+                    <li>"Extract entities" - Find people, dates, organizations</li>
+                    <li>"What are the main conclusions?" - Ask questions</li>
+                    </ul>`
+            },
+            ko: {
+                welcome: `<p>안녕하세요! 저는 문서 어시스턴트입니다. 다음을 도와드릴 수 있습니다:</p>
+                    <ul>
+                        <li><strong>업로드</strong> 문서 (PDF, Word, 텍스트, Markdown)</li>
+                        <li><strong>검색</strong> 문서 내용 검색</li>
+                        <li><strong>질문 응답</strong> 문서 기반 질문에 답변</li>
+                        <li><strong>요약</strong> 문서 내용 요약</li>
+                        <li><strong>추출</strong> 개체 (사람, 날짜, 조직)</li>
+                        <li><strong>비교</strong> 여러 문서 비교</li>
+                    </ul>
+                    <p>샘플 문서를 로드하거나 직접 업로드하여 시작하세요!</p>`,
+                search: `<strong>검색 결과:</strong><br><br>
+                    <strong>'기술 보고서.pdf' (3페이지)에서:</strong><br>
+                    "주요 발견 사항은 새 알고리즘 사용 시 처리 효율성이 35% 향상되었음을 나타냅니다. 세 가지 테스트 환경에서 일관된 결과를 보였습니다."<br><br>
+                    <strong>'연구 노트.md' (섹션 2)에서:</strong><br>
+                    "주요 발견은 자동화된 문서 처리가 수동 검토 시간을 최대 60%까지 줄인다는 가설을 지지합니다."<br><br>
+                    <em>2개의 관련 섹션을 찾았습니다.</em>`,
+                summarize: `<strong>'기술 보고서.pdf' 요약:</strong><br><br>
+                    이 기술 보고서는 문서 처리 최적화에 대한 종합 연구 결과를 제시합니다. 연구팀은 정확도와 성능 지표에 초점을 맞춰 자동화된 텍스트 추출 및 분석에 대한 여러 접근 방식을 평가했습니다. 주요 결론은 자동화를 통한 상당한 시간 절약과 개체 추출의 일관성 향상입니다.<br><br>
+                    <em>원본: 15,420자 | 요약: 312자</em>`,
+                extract: `<strong>추출된 개체:</strong><br><br>
+                    <strong>사람:</strong> 사라 첸 박사, 마이클 로버츠, 제니퍼 리우<br><br>
+                    <strong>조직:</strong> 기술 연구소, Acme Corp, Data Analytics Inc<br><br>
+                    <strong>날짜:</strong> 2024년 1월 15일, 2024년 3월, 2024년 2분기<br><br>
+                    <strong>이메일:</strong> research@techlab.com, contact@acme.com<br><br>
+                    <strong>위치:</strong> 샌프란시스코, 뉴욕, 보스턴`,
+                compare: `<strong>문서 비교:</strong><br><br>
+                    <strong>문서 1:</strong> 기술 보고서.pdf (5,240 단어)<br>
+                    <strong>문서 2:</strong> 연구 노트.md (2,180 단어)<br><br>
+                    <strong>유사도 점수:</strong> 68.5%<br><br>
+                    <strong>공통 용어:</strong> 분석, 처리, 문서, 추출, 알고리즘, 성능<br><br>
+                    <strong>문서 1 고유:</strong> 벤치마크, 최적화, 효율성, 배포<br>
+                    <strong>문서 2 고유:</strong> 가설, 방법론, 예비`,
+                question: `<strong>답변:</strong><br>
+                    문서에 따르면 주요 권장 사항은 대용량 문서 유형부터 시작하여 자동화된 처리 파이프라인을 단계적으로 구현하는 것입니다. 연구에 따르면 이 접근 방식은 위험을 최소화하면서 초기 ROI를 극대화합니다.<br><br>
+                    <strong>출처:</strong><br>
+                    - 기술 보고서.pdf (8페이지)<br>
+                    - 연구 노트.md (섹션 4)<br><br>
+                    <em>신뢰도: 85%</em>`,
+                default: `문서 분석을 도와드릴 수 있습니다. 다음을 시도해 보세요:<br><br>
+                    <ul>
+                    <li>"[키워드] 검색" - 관련 콘텐츠 찾기</li>
+                    <li>"문서 요약" - 간략한 개요 얻기</li>
+                    <li>"개체 추출" - 사람, 날짜, 조직 찾기</li>
+                    <li>"주요 결론은 무엇인가요?" - 질문하기</li>
+                    </ul>`
+            },
+            ja: {
+                welcome: `<p>こんにちは！私は文書アシスタントです。以下のことをお手伝いできます：</p>
+                    <ul>
+                        <li><strong>アップロード</strong> 文書（PDF、Word、テキスト、Markdown）</li>
+                        <li><strong>検索</strong> 文書内容を検索</li>
+                        <li><strong>質問に回答</strong> 文書に基づいて回答</li>
+                        <li><strong>要約</strong> 文書内容を要約</li>
+                        <li><strong>抽出</strong> エンティティ（人物、日付、組織）</li>
+                        <li><strong>比較</strong> 複数の文書を比較</li>
+                    </ul>
+                    <p>サンプル文書を読み込むか、自分のファイルをアップロードして始めましょう！</p>`,
+                search: `<strong>検索結果：</strong><br><br>
+                    <strong>「技術レポート.pdf」（3ページ）より：</strong><br>
+                    「主な発見は、新しいアルゴリズムを使用した場合、処理効率が35%向上したことを示しています。3つのテスト環境で一貫した結果が得られました。」<br><br>
+                    <strong>「研究ノート.md」（セクション2）より：</strong><br>
+                    「主な発見は、自動化された文書処理が手動レビュー時間を最大60%削減するという仮説を支持しています。」<br><br>
+                    <em>2つの関連セクションが見つかりました。</em>`,
+                summarize: `<strong>「技術レポート.pdf」の要約：</strong><br><br>
+                    この技術レポートは、文書処理の最適化に関する包括的な研究の結果を示しています。研究チームは、精度とパフォーマンス指標に焦点を当て、自動化されたテキスト抽出と分析への複数のアプローチを評価しました。主な結論は、自動化による大幅な時間節約とエンティティ抽出の一貫性の向上です。<br><br>
+                    <em>原文：15,420文字 | 要約：312文字</em>`,
+                extract: `<strong>抽出されたエンティティ：</strong><br><br>
+                    <strong>人物：</strong> サラ・チェン博士、マイケル・ロバーツ、ジェニファー・リウ<br><br>
+                    <strong>組織：</strong> Tech Research Institute、Acme Corp、Data Analytics Inc<br><br>
+                    <strong>日付：</strong> 2024年1月15日、2024年3月、2024年第2四半期<br><br>
+                    <strong>メール：</strong> research@techlab.com, contact@acme.com<br><br>
+                    <strong>場所：</strong> サンフランシスコ、ニューヨーク、ボストン`,
+                compare: `<strong>文書比較：</strong><br><br>
+                    <strong>文書1：</strong> 技術レポート.pdf（5,240語）<br>
+                    <strong>文書2：</strong> 研究ノート.md（2,180語）<br><br>
+                    <strong>類似度スコア：</strong> 68.5%<br><br>
+                    <strong>共通用語：</strong> 分析、処理、文書、抽出、アルゴリズム、パフォーマンス<br><br>
+                    <strong>文書1固有：</strong> ベンチマーク、最適化、効率、デプロイ<br>
+                    <strong>文書2固有：</strong> 仮説、方法論、予備的`,
+                question: `<strong>回答：</strong><br>
+                    文書によると、主な推奨事項は、大量の文書タイプから始めて、自動化された処理パイプラインを段階的に実装することです。研究によると、このアプローチはリスクを最小限に抑えながら、早期のROIを最大化します。<br><br>
+                    <strong>出典：</strong><br>
+                    - 技術レポート.pdf（8ページ）<br>
+                    - 研究ノート.md（セクション4）<br><br>
+                    <em>信頼度：85%</em>`,
+                default: `文書の分析をお手伝いします。以下をお試しください：<br><br>
+                    <ul>
+                    <li>「[キーワード]を検索」 - 関連コンテンツを検索</li>
+                    <li>「文書を要約」 - 簡単な概要を取得</li>
+                    <li>「エンティティを抽出」 - 人物、日付、組織を検索</li>
+                    <li>「主な結論は何ですか？」 - 質問する</li>
+                    </ul>`
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = i18n[lang];
+
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === lang.toUpperCase());
+            });
+
+            // Update header
+            document.getElementById('title').textContent = t.title;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('github-text').textContent = t.github;
+
+            // Update sidebar
+            document.getElementById('upload-title').textContent = t.uploadTitle;
+            document.getElementById('upload-text').textContent = t.uploadText;
+            document.getElementById('sample-title').textContent = t.sampleTitle;
+            document.getElementById('docs-title').textContent = t.docsTitle;
+            document.getElementById('actions-title').textContent = t.actionsTitle;
+            document.getElementById('action-search').textContent = t.actionSearch;
+            document.getElementById('action-summarize').textContent = t.actionSummarize;
+            document.getElementById('action-extract').textContent = t.actionExtract;
+            document.getElementById('action-compare').textContent = t.actionCompare;
+
+            // Update chat
+            document.getElementById('chat-input').placeholder = t.placeholder;
+            document.getElementById('send-btn').textContent = t.send;
+
+            // Update features
+            document.getElementById('feature1-title').textContent = t.feature1Title;
+            document.getElementById('feature1-desc').textContent = t.feature1Desc;
+            document.getElementById('feature2-title').textContent = t.feature2Title;
+            document.getElementById('feature2-desc').textContent = t.feature2Desc;
+            document.getElementById('feature3-title').textContent = t.feature3Title;
+            document.getElementById('feature3-desc').textContent = t.feature3Desc;
+            document.getElementById('feature4-title').textContent = t.feature4Title;
+            document.getElementById('feature4-desc').textContent = t.feature4Desc;
+
+            // Update footer
+            document.getElementById('footer-text').textContent = t.footer;
+
+            // Update docs list
+            updateDocsList();
+
+            // Refresh welcome message
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '';
+            addMessage(responses[lang].welcome, 'assistant');
+        }
+
         function simulateUpload() {
-            addMessage("I've uploaded a document", "user");
+            const t = i18n[currentLang];
+            addMessage(t.uploaded, "user");
             setTimeout(() => {
                 addDoc('uploaded_doc.pdf', 'PDF', 3420);
-                addMessage("Successfully uploaded 'uploaded_doc.pdf' (3,420 words, 12 chunks). You can now search, summarize, or ask questions about this document.", "assistant");
+                addMessage(`${t.uploadSuccess} 'uploaded_doc.pdf' (3,420 ${t.words}, 12 ${t.chunks}). ${t.whatToKnow}`, "assistant");
             }, 500);
         }
 
         function loadSample(type) {
+            const t = i18n[currentLang];
             const samples = {
                 tech_report: { name: 'Tech Report.pdf', type: 'PDF', words: 5240 },
                 contract: { name: 'Contract.docx', type: 'DOCX', words: 2890 },
@@ -450,10 +718,10 @@ Based on the documents, the main recommendation is to implement the automated pr
             };
 
             const sample = samples[type];
-            addMessage(`Loading sample: ${sample.name}`, "user");
+            addMessage(`${t.loading} ${sample.name}`, "user");
             setTimeout(() => {
                 addDoc(sample.name, sample.type, sample.words);
-                addMessage(`Loaded '${sample.name}' (${sample.words.toLocaleString()} words). What would you like to know about it?`, "assistant");
+                addMessage(`Loaded '${sample.name}' (${sample.words.toLocaleString()} ${t.words}). ${t.whatToKnow}`, "assistant");
             }, 500);
         }
 
@@ -463,14 +731,15 @@ Based on the documents, the main recommendation is to implement the automated pr
         }
 
         function updateDocsList() {
+            const t = i18n[currentLang];
             const list = document.getElementById('docs-list');
             if (documents.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-light); font-size: 0.85rem;">No documents yet</p>';
+                list.innerHTML = `<p style="color: var(--text-light); font-size: 0.85rem;">${t.noDocs}</p>`;
             } else {
                 list.innerHTML = documents.map((doc, i) => `
                     <div class="doc-item ${i === 0 ? 'active' : ''}" onclick="selectDoc(${i})">
                         <div class="name">${doc.name}</div>
-                        <div class="info">${doc.type} | ${doc.words.toLocaleString()} words</div>
+                        <div class="info">${doc.type} | ${doc.words.toLocaleString()} ${t.words}</div>
                     </div>
                 `).join('');
             }
@@ -482,8 +751,14 @@ Based on the documents, the main recommendation is to implement the automated pr
             });
         }
 
-        function quickMsg(msg) {
-            document.getElementById('chat-input').value = msg;
+        function quickAction(action) {
+            const t = i18n[currentLang];
+            const msgs = {
+                en: { search: 'Search for key findings', summarize: 'Summarize the document', extract: 'Extract all entities', compare: 'Compare the documents' },
+                ko: { search: '주요 발견 사항 검색', summarize: '문서 요약', extract: '모든 개체 추출', compare: '문서 비교' },
+                ja: { search: '主な発見を検索', summarize: '文書を要約', extract: 'すべてのエンティティを抽出', compare: '文書を比較' }
+            };
+            document.getElementById('chat-input').value = msgs[currentLang][action];
             sendMsg();
         }
 
@@ -502,16 +777,19 @@ Based on the documents, the main recommendation is to implement the automated pr
         }
 
         function getResponse(msg) {
+            const t = i18n[currentLang];
+            const r = responses[currentLang];
+
             if (documents.length === 0) {
-                return "Please upload or load a sample document first, then I can help you analyze it.";
+                return t.loadFirst;
             }
 
-            if (msg.includes('search') || msg.includes('find')) return responses.search;
-            if (msg.includes('summarize') || msg.includes('summary')) return responses.summarize;
-            if (msg.includes('extract') || msg.includes('entities')) return responses.extract;
-            if (msg.includes('compare')) return responses.compare;
-            if (msg.includes('?')) return responses.question;
-            return responses.default;
+            if (msg.includes('search') || msg.includes('find') || msg.includes('검색') || msg.includes('찾') || msg.includes('検索')) return r.search;
+            if (msg.includes('summarize') || msg.includes('summary') || msg.includes('요약') || msg.includes('要約')) return r.summarize;
+            if (msg.includes('extract') || msg.includes('entities') || msg.includes('추출') || msg.includes('개체') || msg.includes('抽出') || msg.includes('エンティティ')) return r.extract;
+            if (msg.includes('compare') || msg.includes('비교') || msg.includes('比較')) return r.compare;
+            if (msg.includes('?') || msg.includes('？')) return r.question;
+            return r.default;
         }
 
         function addMessage(content, role) {
@@ -522,6 +800,9 @@ Based on the documents, the main recommendation is to implement the automated pr
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
+
+        // Initialize
+        setLanguage('en');
     </script>
 </body>
 </html>
