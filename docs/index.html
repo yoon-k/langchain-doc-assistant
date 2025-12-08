@@ -309,6 +309,7 @@
             <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
             <button class="lang-btn" onclick="setLanguage('ko')">KO</button>
             <button class="lang-btn" onclick="setLanguage('ja')">JA</button>
+            <button class="lang-btn" onclick="setLanguage('zh')">ZH</button>
         </div>
         <h1 id="title">Smart Document Assistant</h1>
         <p id="subtitle">LangChain-powered document analysis and Q&A</p>
@@ -502,6 +503,39 @@
                 chunks: "チャンク",
                 whatToKnow: "何について知りたいですか？",
                 loadFirst: "まずサンプル文書をアップロードまたは読み込んでください。その後、分析をお手伝いします。"
+            },
+            zh: {
+                title: "智能文档助手",
+                subtitle: "LangChain驱动的文档分析和问答",
+                github: "在GitHub上查看",
+                uploadTitle: "上传文档",
+                uploadText: "将文件拖到这里或点击",
+                sampleTitle: "示例文档",
+                docsTitle: "您的文档",
+                noDocs: "还没有文档",
+                actionsTitle: "快速操作",
+                actionSearch: "搜索文档",
+                actionSummarize: "总结",
+                actionExtract: "提取实体",
+                actionCompare: "比较文档",
+                placeholder: "询问您的文档...",
+                send: "发送",
+                feature1Title: "多格式支持",
+                feature1Desc: "通过智能解析和分块处理PDF、DOCX、TXT、Markdown、CSV等格式。",
+                feature2Title: "智能搜索",
+                feature2Desc: "使用语义搜索和关键词匹配在所有文档中查找相关内容。",
+                feature3Title: "问答",
+                feature3Desc: "使用RAG（检索增强生成）提供带有来源引用的准确答案。",
+                feature4Title: "实体提取",
+                feature4Desc: "自动提取人物、组织、日期、电子邮件和其他实体。",
+                footer: "展示LangChain文档处理功能的演示",
+                words: "字",
+                loading: "加载示例:",
+                uploaded: "我已上传文档",
+                uploadSuccess: "成功上传",
+                chunks: "块",
+                whatToKnow: "您想了解什么？",
+                loadFirst: "请先上传或加载示例文档，然后我可以帮您分析。"
             }
         };
 
@@ -646,6 +680,53 @@
                     <li>「エンティティを抽出」 - 人物、日付、組織を検索</li>
                     <li>「主な結論は何ですか？」 - 質問する</li>
                     </ul>`
+            },
+            zh: {
+                welcome: `<p>欢迎！我是您的文档助手。我可以帮您：</p>
+                    <ul>
+                        <li><strong>上传</strong>文档（PDF、Word、文本、Markdown）</li>
+                        <li><strong>搜索</strong>文档内容</li>
+                        <li><strong>回答问题</strong>基于您的文档</li>
+                        <li><strong>总结</strong>文档内容</li>
+                        <li><strong>提取</strong>实体（人物、日期、组织）</li>
+                        <li><strong>比较</strong>多个文档</li>
+                    </ul>
+                    <p>尝试加载示例文档或上传您自己的文档开始吧！</p>`,
+                search: `<strong>搜索结果：</strong><br><br>
+                    <strong>从"技术报告.pdf"（第3页）：</strong><br>
+                    "主要发现表明，使用新算法时处理效率提高了35%。在三个测试环境中显示了一致的结果。"<br><br>
+                    <strong>从"研究笔记.md"（第2节）：</strong><br>
+                    "主要发现支持自动化文档处理可将手动审查时间减少高达60%的假设。"<br><br>
+                    <em>找到2个相关部分。</em>`,
+                summarize: `<strong>"技术报告.pdf"的摘要：</strong><br><br>
+                    这份技术报告展示了文档处理优化综合研究的结果。研究团队评估了多种自动文本提取和分析方法，重点关注准确性和性能指标。主要结论包括通过自动化显著节省时间以及实体提取一致性的提高。<br><br>
+                    <em>原文：15,420字符 | 摘要：312字符</em>`,
+                extract: `<strong>提取的实体：</strong><br><br>
+                    <strong>人物：</strong>陈莎拉博士、迈克尔·罗伯茨、詹妮弗·刘<br><br>
+                    <strong>组织：</strong>技术研究所、Acme公司、数据分析公司<br><br>
+                    <strong>日期：</strong>2024年1月15日、2024年3月、2024年第二季度<br><br>
+                    <strong>电子邮件：</strong>research@techlab.com, contact@acme.com<br><br>
+                    <strong>地点：</strong>旧金山、纽约、波士顿`,
+                compare: `<strong>文档比较：</strong><br><br>
+                    <strong>文档1：</strong>技术报告.pdf（5,240字）<br>
+                    <strong>文档2：</strong>研究笔记.md（2,180字）<br><br>
+                    <strong>相似度分数：</strong>68.5%<br><br>
+                    <strong>共同术语：</strong>分析、处理、文档、提取、算法、性能<br><br>
+                    <strong>文档1独有：</strong>基准、优化、效率、部署<br>
+                    <strong>文档2独有：</strong>假设、方法论、初步`,
+                question: `<strong>答案：</strong><br>
+                    根据文档，主要建议是从高容量文档类型开始分阶段实施自动化处理管道。研究表明，这种方法可以最小化风险，同时最大化早期投资回报率。<br><br>
+                    <strong>来源：</strong><br>
+                    - 技术报告.pdf（第8页）<br>
+                    - 研究笔记.md（第4节）<br><br>
+                    <em>置信度：85%</em>`,
+                default: `我可以帮您分析文档。尝试：<br><br>
+                    <ul>
+                    <li>"搜索[关键词]" - 查找相关内容</li>
+                    <li>"总结文档" - 获取简要概述</li>
+                    <li>"提取实体" - 查找人物、日期、组织</li>
+                    <li>"主要结论是什么？" - 提问</li>
+                    </ul>`
             }
         };
 
@@ -784,10 +865,10 @@
                 return t.loadFirst;
             }
 
-            if (msg.includes('search') || msg.includes('find') || msg.includes('검색') || msg.includes('찾') || msg.includes('検索')) return r.search;
-            if (msg.includes('summarize') || msg.includes('summary') || msg.includes('요약') || msg.includes('要約')) return r.summarize;
-            if (msg.includes('extract') || msg.includes('entities') || msg.includes('추출') || msg.includes('개체') || msg.includes('抽出') || msg.includes('エンティティ')) return r.extract;
-            if (msg.includes('compare') || msg.includes('비교') || msg.includes('比較')) return r.compare;
+            if (msg.includes('search') || msg.includes('find') || msg.includes('검색') || msg.includes('찾') || msg.includes('検索') || msg.includes('搜索')) return r.search;
+            if (msg.includes('summarize') || msg.includes('summary') || msg.includes('요약') || msg.includes('要約') || msg.includes('总结') || msg.includes('摘要')) return r.summarize;
+            if (msg.includes('extract') || msg.includes('entities') || msg.includes('추출') || msg.includes('개체') || msg.includes('抽出') || msg.includes('エンティティ') || msg.includes('提取') || msg.includes('实体')) return r.extract;
+            if (msg.includes('compare') || msg.includes('비교') || msg.includes('比較') || msg.includes('比较')) return r.compare;
             if (msg.includes('?') || msg.includes('？')) return r.question;
             return r.default;
         }
